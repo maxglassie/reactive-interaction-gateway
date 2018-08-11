@@ -18,8 +18,9 @@ defmodule RigOutboundGateway.Kafka.MessageHandler do
           String.t(),
           String.t() | non_neg_integer,
           pid,
-          RigOutboundGateway.send_t(),
-          String.t()
+          String.t(),
+          String.t(),
+          RigOutboundGateway.send_t()
         ) :: no_return
   def message_handler_loop(topic, partition, group_subscriber_pid, serializer, schema, send \\ @default_send) do
     common_meta = [
@@ -41,15 +42,6 @@ defmodule RigOutboundGateway.Kafka.MessageHandler do
         __MODULE__.message_handler_loop(topic, partition, group_subscriber_pid, serializer, schema, send)
     end
   end
-
-  # @spec decode_body(String.t(), String.t(), String.t()) :: map()
-  # defp decode_body(body, nil, _schema), do: body
-
-  # defp decode_body(body, "avro", schema) do
-  #   schema
-  #   |> Avro.parse_schema
-  #   |> Avro.decode(body)
-  # end
 
   defp ack_message(group_subscriber_pid, topic, partition, offset) do
     # Send the async ack to group subscriber (the offset will be eventually

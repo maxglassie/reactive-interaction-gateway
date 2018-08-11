@@ -6,11 +6,13 @@ defmodule RigOutboundGateway.Kafka.Avro do
   use Memoize
   use Rig.Config, [:schema_registry_host]
 
+  @binary_metadata_length 5
+
   @spec parse_schema(String.t()) :: map()
   def parse_schema(subject) do
     {:ok, %{"schema" => raw_schema}} = get(subject)
     schema = :avro.decode_schema(raw_schema)
-    Logger.debug("Using Avro schema=#{subject} with definition=#{inspect schema}")
+    Logger.debug("Using Avro schema=#{subject}")
     schema
   end
 
@@ -18,6 +20,7 @@ defmodule RigOutboundGateway.Kafka.Avro do
   def decode(schema, data) do
     decoded_data =
       data
+      |> strip_binary_metadata
       |> :avro_binary_decoder.decode(schema, fn(schema_subject) -> raise("Incorrect Avro schema=#{schema_subject}") end)
       |> :jsone.encode
 
@@ -40,6 +43,13 @@ defmodule RigOutboundGateway.Kafka.Avro do
       m
     end
   end
+
+  defp strip_binary_metadata(data) when is_binary(data) do
+    # strips away magic byte (position 1) and avro schema ID (position 2 - 5)
+    data
+    |> binary_part(@binary_metadata_length, byte_size(data) - @binary_metadata_length)
+  end
+  defp strip_binary_metadata(data), do: data
 
   @spec get(String.t()) :: map()
   defmemo get(subject) do

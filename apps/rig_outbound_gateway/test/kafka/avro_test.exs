@@ -86,6 +86,24 @@ defmodule RigOutboundGateway.Kafka.AvroTest do
     assert decoded_body == "\"simple test message\""
   end
 
+  test "avro decoder should strip metadata from binary", %{kafka_schema_registry: kafka_schema_registry} do
+    Bypass.expect kafka_schema_registry, "GET", "/subjects/simpleSchema/versions/latest", fn conn ->
+      Plug.Conn.resp(conn, 200, ~s<{
+        "subject": "simpleSchema",
+        "version": 1,
+        "id": 1,
+        "schema": "{\\"type\\":\\"record\\",\\"name\\":\\"simpleSchema\\",\\"doc\\":\\"\\",\\"fields\\":[{\\"name\\":\\"username\\",\\"type\\":[\\"null\\",\\"string\\"],\\"default\\":null},{\\"name\\":\\"food\\",\\"type\\":{\\"type\\":\\"record\\",\\"name\\":\\"simpleSchemaFood\\",\\"fields\\":[{\\"name\\":\\"vegetable\\",\\"type\\":[\\"null\\",\\"string\\"],\\"default\\":null}]}}]}"
+    }>)
+    end
+
+    # binary encoded with schema => %{"username" => "Jeff", "food" => %{"vegetable" => "tomato"}}
+    encoded_value = <<0, 0, 0, 0, 6, 2, 8, 74, 101, 102, 102, 2, 12, 116, 111, 109, 97, 116, 111>>
+
+    parsed_schema = Avro.parse_schema("simpleSchema")
+    decoded_body = Avro.decode(parsed_schema, encoded_value)
+    assert decoded_body == "{\"username\":\"Jeff\",\"food\":{\"vegetable\":\"tomato\"}}"
+  end
+
   # test "avro decoder should throw error with wrong schema", %{kafka_schema_registry: kafka_schema_registry} do
   #   Bypass.expect kafka_schema_registry, "GET", "/subjects/stringSchema/versions/latest", fn conn ->
   #     Plug.Conn.resp(conn, 200, ~s<{

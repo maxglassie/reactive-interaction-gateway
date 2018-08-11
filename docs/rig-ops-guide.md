@@ -26,8 +26,12 @@ Variable&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 `KAFKA_ENABLED` | If set to true, RIG will consume messages from a Kafka broker using the configured broker and topic(s). | false
 `KAFKA_HOSTS` | List of Kafka brokers RIG should connect to, delimited by comma. Usually it's enough to specify one broker and RIG will auto-discover rest of the Kafka cluster. | ["localhost:9092"]
 `KAFKA_LOG_TOPIC` | Kafka topic for producer used to log HTTP requests going through RIG's API Proxy. | "rig-request-log"
+`KAFKA_LOG_TOPIC_SCHEMA` | Schema name to use for serialization for selected serializer. | nil
 `KAFKA_RESTART_DELAY_MS` | If the connection to Kafka fails or cannot be established, RIG retries setting up the connection after `KAFKA_RESTART_DELAY_MS` milliseconds. | 20000
+`KAFKA_SCHEMA_REGISTRY_HOST` | Host for Kafka Schema Registry. | "localhost:8081"
+`KAFKA_SERIALIZER` | Message serializer for Kafka messages e.g. Apache Avro. | nil
 `KAFKA_SOURCE_TOPICS` | List of Kafka topics RIG will consume, delimited by comma. | ["rig"]
+`KAFKA_SOURCE_TOPICS_SCHEMAS` | List of Schema names used for message deserialization, delimited by comma. | []
 `KAFKA_SASL` | If set, SASL is used to authenticate RIG against the Kafka brokers. Use the following format for SASL/Plain authentication: "plain:myusername:mypassword". Note that setting `KAFKA_SASL` does *not* enable SSL (see `KAFKA_SSL_ENABLED` and related settings). | nil
 `KAFKA_SSL_ENABLED` | Enables encrypted communication to Kafka brokers. | false
 `KAFKA_SSL_CA_CERTFILE` | Path to the CA certificate (PEM format) that was used to sign the server and client certificates. Similar to `PROXY_CONFIG_FILE` the path is relative to the OTP app's `priv` directory. | "ca.crt.pem"

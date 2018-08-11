@@ -86,11 +86,11 @@ defmodule RigOutboundGateway.Kafka.GroupSubscriber do
     {:ok, state}
   end
 
-  @spec spawn_message_handlers(String.t(), nonempty_list(String.t()), String.t(), nonempty_list(String.t())) :: handlers_t
+  @spec spawn_message_handlers(String.t(), nonempty_list(String.t()), String.t(), list(String.t())) :: handlers_t
   defp spawn_message_handlers(brod_client_id, [topic | remaining_topics], serializer, schemas) do
     {:ok, n_partitions} = :brod.get_partitions_count(brod_client_id, topic)
 
-    current_schema = List.first(schemas)
+    current_schema = List.first(schemas) # TODO do head, tail
     remaining_schemas = List.delete_at(schemas, 0)
 
     spawn_for_partition =
