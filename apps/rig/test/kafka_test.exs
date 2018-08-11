@@ -14,6 +14,6 @@ defmodule Rig.KafkaTest do
   end
 
   test "publishing" do
-    assert :ok = SUT.produce("some-topic", "some-key", "some-value", &ProducerStub.produce_sync/5)
+    assert :ok = SUT.produce("some-topic", nil, "some-key", "some-value", &ProducerStub.produce_sync/5)
   end
 end

@@ -16,7 +16,12 @@ brod_client_id = :rig_brod_client
 config :rig, RigOutboundGateway.Kafka.GroupSubscriber,
   brod_client_id: brod_client_id,
   consumer_group: {:system, "KAFKA_CONSUMER_GROUP", "rig-consumer-group"},
-  source_topics: {:system, :list, "KAFKA_SOURCE_TOPICS", ["rig"]}
+  source_topics: {:system, :list, "KAFKA_SOURCE_TOPICS", ["rig"]},
+  serializer: {:system, :string, "KAFKA_SERIALIZER", nil},
+  source_topics_schemas: {:system, :list, "KAFKA_SOURCE_TOPICS_SCHEMAS", []}
+
+config :rig, RigOutboundGateway.Kafka.Avro,
+  schema_registry_host: {:system, :string, "KAFKA_SCHEMA_REGISTRY_HOST", "localhost:8081"}
 
 config :rig, RigOutboundGateway.Kafka.SupWrapper,
   enabled?: {:system, :boolean, "KAFKA_ENABLED", false}

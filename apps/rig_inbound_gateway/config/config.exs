@@ -46,7 +46,8 @@ config :rig, RigInboundGateway.ApiProxy.Router,
   }
 
 config :rig, RigInboundGateway.RequestLogger.Kafka,
-  log_topic: {:system, "KAFKA_LOG_TOPIC", "rig-request-log"}
+  log_topic: {:system, "KAFKA_LOG_TOPIC", "rig-request-log"},
+  log_topic_schema: {:system, :string, "KAFKA_LOG_TOPIC_SCHEMA", nil}
 
 config :rig, RigInboundGatewayWeb.Proxy.Controller,
   rig_proxy: RigInboundGateway.Proxy

@@ -42,6 +42,13 @@ defmodule RigOutboundGateway.MixProject do
       {:stubr, "~> 1.5"},
       # Run/manage the Kinesis Java client:
       {:porcelain, "~> 2.0"},
+      # Apache Avro encoding/decoding library:
+      {:erlavro, "~> 2.6"},
+      # Apache Kafka Schema Registry wrapper library:
+      {:schemex, "~> 0.1.1"},
+      # Caching library using ETS:
+      {:memoize, "~> 1.2"},
+      {:bypass, "~> 0.8.1", only: :test},
     ]
   end
 end

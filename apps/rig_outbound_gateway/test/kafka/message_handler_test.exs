@@ -50,6 +50,8 @@ defmodule RigOutboundGateway.Kafka.MessageHandlerTest do
           kafka_topic,
           partition,
           group_subscriber_pid,
+          nil,
+          [],
           &send_stub.send/1
         )
       end)

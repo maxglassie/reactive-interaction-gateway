@@ -68,7 +68,7 @@ defmodule RigOutboundGateway.Kafka.GroupSubscriber do
   def init(_consumer_group_id, :no_args) do
     conf = config()
     Logger.info("Starting Kafka group subscriber (config=#{inspect(conf)})")
-    handlers = spawn_message_handlers(conf.brod_client_id, conf.source_topics)
+    handlers = spawn_message_handlers(conf.brod_client_id, conf.source_topics, conf.serializer, conf.source_topics_schemas)
     {:ok, %{handlers: handlers}}
   end
 
@@ -86,15 +86,20 @@ defmodule RigOutboundGateway.Kafka.GroupSubscriber do
     {:ok, state}
   end
 
-  @spec spawn_message_handlers(String.t(), nonempty_list(String.t())) :: handlers_t
-  defp spawn_message_handlers(brod_client_id, [topic | remaining_topics]) do
+  @spec spawn_message_handlers(String.t(), nonempty_list(String.t()), String.t(), nonempty_list(String.t())) :: handlers_t
+  defp spawn_message_handlers(brod_client_id, [topic | remaining_topics], serializer, schemas) do
     {:ok, n_partitions} = :brod.get_partitions_count(brod_client_id, topic)
+
+    current_schema = List.first(schemas)
+    remaining_schemas = List.delete_at(schemas, 0)
 
     spawn_for_partition =
       &spawn_link(MessageHandler, :message_handler_loop, [
         topic,
         _partition = &1,
-        _group_subscriber_pid = self()
+        _group_subscriber_pid = self(),
+        serializer,
+        current_schema
       ])
 
     0..(n_partitions - 1)
@@ -102,10 +107,10 @@ defmodule RigOutboundGateway.Kafka.GroupSubscriber do
       handler_pid = spawn_for_partition.(partition)
       Map.put(acc, "#{topic}-#{partition}", handler_pid)
     end)
-    |> Map.merge(spawn_message_handlers(brod_client_id, remaining_topics))
+    |> Map.merge(spawn_message_handlers(brod_client_id, remaining_topics, serializer, remaining_schemas))
   end
 
-  defp spawn_message_handlers(_brod_client_id, []) do
+  defp spawn_message_handlers(_brod_client_id, [], _serializer, []) do
     %{}
   end
 

@@ -52,7 +52,7 @@ defmodule RigInboundGateway.RequestLogger.Kafka do
     # If topic does not exist, it will be created automatically, provided the server is
     # configured that way. However, this call then returns with {:error, :LeaderNotAvailable},
     # as at that point there won't be a partition leader yet.
-    RigKafka.produce(conf.log_topic, _key = username, _plaintext = message_json)
+    RigKafka.produce(conf.log_topic, conf.log_topic_schema, _key = username, _plaintext = message_json)
   rescue
     err ->
       case err do
